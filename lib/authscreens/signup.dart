@@ -29,8 +29,8 @@ class SignupPageState extends State<SignupPage> {
 
   signup() {
     setState(() {                      
-                            isLoading = true; 
-                    });
+      isLoading = true; 
+    });
     if(passwordController.text == verifypasswordController.text){
       print(emailController.text);
     FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
@@ -238,11 +238,7 @@ Widget verifypasswordfield(){
   Widget build(BuildContext context) {
     
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text("Board"),
-      ),
+      
       body: new Container(
         padding: EdgeInsets.all(20.0),
         color: Colors.white10,
@@ -251,8 +247,16 @@ Widget verifypasswordfield(){
             child: ListView(
               children: <Widget>[
                 new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                welcometext(),
+                Hero(
+                  tag: 'logo',
+                  child: new Container(
+                    child: Image.asset("assets/logo.png"),
+                  ),
+                ),
+                
+                //welcometext(),
                 mobilefield(),
                 emailfield(),
                 passwordfield(),

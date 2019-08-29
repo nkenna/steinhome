@@ -129,7 +129,7 @@ class LoginPageState extends State<LoginPage> {
     scaffold.showSnackBar(
       SnackBar(
         content: Text(e.toString()),
-        duration: Duration(seconds: 5),
+        duration: Duration(seconds: 15),
       )
     );
   }
@@ -189,11 +189,8 @@ class LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text("Board"),
-      ),
+      
+     
       body: new Container(
         padding: EdgeInsets.all(20.0),
         color: Colors.white10,
@@ -210,8 +207,16 @@ class LoginPageState extends State<LoginPage> {
             child: ListView(
               children: <Widget>[
                 new Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                logintext(),
+               Hero(
+                  tag: 'logo',
+                  child: new Container(
+                    child: Image.asset("assets/logo.png"),
+                  ),
+                ),
+                
+                //logintext(),
                 emailfield(),
                 passwordfield(),
                 rowpad(),

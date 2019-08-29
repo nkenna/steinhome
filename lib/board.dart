@@ -4,15 +4,22 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:steinhome/thermometer_widget.dart';
-
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
+
+import 'package:steinhome/customUI/custombutton.dart';
+
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 
 class BoardPage extends StatefulWidget {
-  BoardPage({Key key, this.title}) : super(key: key);
+  
 
 
-  final String title;
+  
+   FirebaseUser user;
+  BoardPage({Key key, this.user}) : super(key: key);
 
   @override
   BoardPageState createState() => BoardPageState();
@@ -27,7 +34,7 @@ class BoardPageState extends State<BoardPage> {
 
   int temperature = 0;
   int humdity = 0;
-  FirebaseUser user;
+ 
   
 
   @override
@@ -39,7 +46,7 @@ initState() {
     checkNetwork();
     
   });
-  getCurrentUser();
+ // getCurrentUser();
 
   temperaturetimer();
 }
@@ -52,25 +59,25 @@ dispose() {
   subscription.cancel();
 }
 
-String getCurrentUser() {
+/* String getCurrentUser() {
   String s = "zz";
 
     FirebaseAuth.instance.currentUser().then((user) {
-      print(user);
+      print(user.email);
       setState(() {
        s = user.email; 
       });
 
     }).catchError((e) {
       setState(() {
-       s = e.toString(); 
+       s = "empty"; 
       });
 
     });
     
     
    return s;
-  }
+  } */
 
 Future<void> signout() async {
   return FirebaseAuth.instance.signOut();
@@ -99,8 +106,11 @@ void checkNetwork  ()async {
 
 
 void temperaturetimer(){
-  Timer.periodic(new Duration(minutes: 5), (timer){
+  Timer.periodic(new Duration(minutes: 1), (timer){
+    checkNetwork  ();
     retrieveTemperature();
+    networkhumdity ();
+    networkhumdity();
   });
 }
 
@@ -112,6 +122,63 @@ retrieveTemperature (){
     humdity = num.nextInt(100);
   });
 }
+
+networktemp () async {
+  
+  var url = "http://192.168.0.104/stein/temp";
+
+  // Await the http get response, then decode the json-formatted responce.
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    
+    print(response.body);
+  } else {
+    print("Request failed with status: ${response.statusCode}.");
+  }
+}
+
+networkhumdity () async {
+  
+  var url = "http://192.168.0.104/stein/humd";
+
+  // Await the http get response, then decode the json-formatted responce.
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    
+    print(response.body);
+  } else {
+    print("Request failed with status: ${response.statusCode}.");
+  }
+}
+
+networktorch () async {
+  
+  var url = "http://192.168.0.104/stein/torch";
+
+  // Await the http get response, then decode the json-formatted responce.
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    
+    print(response.body);
+  } else {
+    print("Request failed with status: ${response.statusCode}.");
+  }
+}
+
+networkalarm () async {
+  
+  var url = "http://192.168.0.104/stein/alarm";
+
+  // Await the http get response, then decode the json-formatted responce.
+  var response = await http.get(url);
+  if (response.statusCode == 200) {
+    
+    print(response.body);
+  } else {
+    print("Request failed with status: ${response.statusCode}.");
+  }
+}
+
 
 Widget networkbssidext(){
   return new Text(wifiBSSID, style: new TextStyle(color: Colors.red, fontSize: 15.0));
@@ -130,7 +197,7 @@ Widget networkiptext(){
 }
 
 Widget usertext(){
-  return new Text(getCurrentUser() == null ? "not available" : getCurrentUser(), style: new TextStyle(color: Colors.red, fontSize: 15.0));
+  return new Text("ccc" == null ? "not available" : "nkennannadi", style: new TextStyle(color: Colors.red, fontSize: 15.0));
 }
 
 Widget networkRow(){
@@ -169,20 +236,44 @@ Widget sizebox(){
   
   
     return new Container(
-          color: Colors.black,
-        width: width,
-        height: 200,
+          color: Colors.white,
+       
         child: Center(
           child: new SizedBox(
       child: ThermometerWidget(
-        borderColor: Colors.amber,
-        innerColor: Colors.yellow,
-        indicatorColor: Colors.red,
+        borderColor: Colors.black26,
+        innerColor: Colors.black26,
+        indicatorColor: temperature > 28 ? Colors.red : Colors.green,
         temperature: temperature.toDouble(), // appMqtt.getTemperature(),
       )
     )
         )
         );
+  }
+
+  Widget humditybox(){
+    return new Container(
+      child: new CircularPercentIndicator(
+                      radius: 100.0,
+                      lineWidth: 10.0,
+                      percent: humdity/100.0,
+                      center: new Text("$humdity %"),
+                      progressColor: humdity < 50 || humdity > 68 ? Colors.red : Colors.green,
+                    ),
+    );
+  }
+
+  Widget sensorPanel(){
+    return new Padding(
+      padding: EdgeInsets.all(8.0),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          sizebox(),
+          humditybox()
+        ],
+      ),
+    );
   }
 
 Widget lowpanel(){
@@ -321,11 +412,30 @@ Widget autobutton(){
     return new Padding(
       padding: EdgeInsets.all(5.0),
       child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          lightbutton(),
-          alarmbutton(),
-          autobutton(),
-          signoututton()
+          CustomButton(
+            callback: (){
+            Navigator.of(context).pushReplacementNamed('/login');
+            },
+            text: "TORCH"
+          ),
+
+          CustomButton(
+            callback: (){
+            Navigator.of(context).pushReplacementNamed('/login');
+            },
+            text: "ALARM"
+          ),
+
+          CustomButton(
+            callback: (){
+            Navigator.of(context).pushReplacementNamed('/login');
+            },
+            text: "AUTO"
+          ),
+          
         ],
       ),
     );
@@ -334,17 +444,49 @@ Widget autobutton(){
   
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
+  var width = screenSize.width;
+  var height = screenSize.height;
    
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close),
+            color: Colors.red,
+            onPressed: (){
+              signout();
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.add_circle_outline),
+            color: Colors.red,
+            onPressed: (){
+              signout();
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+          )
+        ],
+        backgroundColor: Colors.white,
         
+        leading: Hero(
+                  tag: 'logo',
+                  child: new Container(
+                    height: height,
+                    width: 150.0,
+                    child: Image.asset("assets/logo.png"),
+                  ),
+                ),
       ),
+      
       body: new Container(
         padding: new EdgeInsets.all(5.0),
         child: ListView(
           children: <Widget>[
             tempContainer(),
-            sizebox(),
+            sensorPanel(),
+            //sizebox(),
             lowpanel()
           ],
         ),

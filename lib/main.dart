@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:steinhome/authscreens/login.dart';
 import 'package:steinhome/authscreens/signup.dart';
+import 'package:steinhome/customUI/custombutton.dart';
 import 'package:steinhome/board.dart';
 import 'package:firebase_auth/firebase_auth.dart'; 
 
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => new MyHomePage(),
         '/login': (BuildContext context) => new LoginPage(),
         '/signup': (BuildContext context) => new SignupPage(),
         '/board': (BuildContext context) => new BoardPage(),
@@ -45,18 +47,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  
 
 
 
@@ -73,11 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+      
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -85,29 +72,33 @@ class _MyHomePageState extends State<MyHomePage> {
         
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Hero(
+                  tag: 'logo',
+                  child: new Container(
+                    child: Image.asset("assets/logo.png"),
+                  ),
+                ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
+             
+                CustomButton(
+                  callback: (){
+                      Navigator.of(context).pushReplacementNamed('/login');
+                  } ,
+                  text: "Login",),
+                CustomButton(
+                  callback: (){
+            
+                      Navigator.of(context).pushReplacementNamed('/signup');
+                  } ,
+                  text: "SignUp",),
+
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          print(getCurrentUser() );
-          if(getCurrentUser() == null){
-            Navigator.of(context).pushReplacementNamed('/login');
-          }else{
-            Navigator.of(context).pushReplacementNamed('/board');
-          }
-          
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    
     );
   }
 }
+
